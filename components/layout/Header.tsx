@@ -51,7 +51,7 @@ export default function Header() {
           onClick={(e) => handleScroll(e, 'home')}
           className="text-lg font-bold text-white tracking-widest cursor-pointer hover:text-indigo-400 transition-colors"
         >
-          SORANG
+          Protfolio - Sorang Kim
         </div>
 
         <nav>
