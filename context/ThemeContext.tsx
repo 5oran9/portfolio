@@ -18,7 +18,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    const savedMode = localStorage.getItem('portfolio-mode') as Mode | null;
+    const savedMode = sessionStorage.getItem('portfolio-mode') as Mode | null;
     if (savedMode) {
       setMode(savedMode);
     }
@@ -29,7 +29,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const toggleMode = () => {
     const newMode = mode === 'dev' ? 'film' : 'dev';
     setMode(newMode);
-    localStorage.setItem('portfolio-mode', newMode);
+    sessionStorage.setItem('portfolio-mode', newMode);
   };
 
   // Hydration 불일치 방지 (깜빡임 방지용 로딩 처리나 기본값 렌더링)
