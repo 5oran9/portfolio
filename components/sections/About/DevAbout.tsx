@@ -24,19 +24,20 @@ export default function DevAbout() {
     },
   } as const;
 
-  // 위→아래 펼침: scaleY + origin-top
+  // 위→아래 펼침
   const unfoldMask = {
     hidden: { scaleY: 0.0 },
     show: { scaleY: 1.0, transition: { duration: 1.05, ease: 'easeOut' } },
   } as const;
 
-  // 내부 요소 위→아래 좌르륵
+  // 내부 요소 좌르륵
   const cascadeParent = {
-    hidden: {},
+    hidden: { opacity: 0 },
     show: {
+      opacity: 1,
       transition: {
         staggerChildren: 0.085,
-        delayChildren: 0.10,
+        delayChildren: 0.1,
       },
     },
   } as const;
@@ -46,7 +47,6 @@ export default function DevAbout() {
     show: { opacity: 1, y: 0, filter: 'blur(0px)', transition: { duration: 0.78, ease: 'easeOut' } },
   } as const;
 
-  // 헤드라인: From 좌 / To 우
   const fromLine = {
     hidden: { opacity: 0, x: -80, filter: 'blur(14px)' },
     show: { opacity: 1, x: 0, filter: 'blur(0px)', transition: { duration: 0.85, ease: 'easeOut' } },
@@ -57,29 +57,29 @@ export default function DevAbout() {
     show: { opacity: 1, x: 0, filter: 'blur(0px)', transition: { duration: 0.9, ease: 'easeOut', delay: 0.08 } },
   } as const;
 
-  // 위/아래로 스크롤 트리거 빠르게
   const fastViewport = {
     once: false,
     amount: 0.15,
-    margin: '-15% 0px -15% 0px', // 위로 올라올 때도
+    margin: '-10% 0px -10% 0px',
   } as const;
 
   return (
     <motion.section
       className="min-h-screen flex flex-col justify-center px-8 lg:px-20 py-24 text-white bg-[#0a0a0a]"
       initial={{ opacity: 0 }}
-      animate={{ opacity: 1, transition: { duration: 0.2, ease: 'easeOut' } }}
+      animate={{ opacity: 1, transition: { duration: 0.4, ease: 'easeOut' } }}
       exit={{ opacity: 0, transition: { duration: 0.18, ease: 'easeInOut' } }}
     >
-      {/* HERO */}
+      {/* HERO SECTION */}
       <motion.div
         variants={unfoldWrap}
         initial="hidden"
         whileInView="show"
-        viewport={{ once: false, amount: 0.25, margin: '-10% 0px -10% 0px' }}
+        animate="show" // 첫 로드 시 강제 실행 추가
+        viewport={fastViewport}
         className="mb-24 max-w-7xl mx-auto w-full"
       >
-        <motion.div variants={unfoldMask} style={{ transformOrigin: 'top' }} className="overflow-hidden">
+        <motion.div variants={unfoldMask} initial="hidden" animate="show" whileInView="show" style={{ transformOrigin: 'top' }} className="overflow-hidden">
           <div className="flex flex-col lg:flex-row-reverse items-center justify-center gap-12 lg:gap-28">
             <div className="relative w-64 h-64 md:w-80 md:h-80 shrink-0 rounded-full overflow-hidden border-4 border-gray-800/50 shadow-2xl group">
               <Image
@@ -91,7 +91,7 @@ export default function DevAbout() {
               <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-1000 mix-blend-overlay bg-indigo-500/10" />
             </div>
 
-            <motion.div variants={cascadeParent} className="max-w-2xl text-center lg:text-left">
+            <motion.div variants={cascadeParent} initial="hidden" animate="show" whileInView="show" className="max-w-2xl text-center lg:text-left">
               <motion.span
                 variants={cascadeItem}
                 className={`px-4 py-1.5 rounded-full border text-sm font-medium backdrop-blur-sm inline-block mb-6 ${badgeStyle}`}
@@ -128,8 +128,8 @@ export default function DevAbout() {
           viewport={fastViewport}
           className="overflow-hidden"
         >
-          <motion.div variants={unfoldMask} style={{ transformOrigin: 'top' }} className="overflow-hidden">
-            <motion.div variants={cascadeParent}>
+          <motion.div variants={unfoldMask} initial="hidden" whileInView="show" style={{ transformOrigin: 'top' }} className="overflow-hidden">
+            <motion.div variants={cascadeParent} initial="hidden" whileInView="show">
               <motion.h3 variants={cascadeItem} className="text-2xl font-bold mb-8 flex items-center gap-3">
                 <span className="w-2.5 h-2.5 rounded-full bg-purple-500 shadow-[0_0_10px_rgba(168,85,247,0.5)]" />
                 Engineering Journey
@@ -174,8 +174,8 @@ export default function DevAbout() {
           viewport={fastViewport}
           className="overflow-hidden"
         >
-          <motion.div variants={unfoldMask} style={{ transformOrigin: 'top' }} className="overflow-hidden">
-            <motion.div variants={cascadeParent}>
+          <motion.div variants={unfoldMask} initial="hidden" whileInView="show" style={{ transformOrigin: 'top' }} className="overflow-hidden">
+            <motion.div variants={cascadeParent} initial="hidden" whileInView="show">
               <motion.h3 variants={cascadeItem} className="text-2xl font-bold mb-8 flex items-center gap-3">
                 <span className="w-2.5 h-2.5 rounded-full bg-indigo-500 shadow-[0_0_10px_rgba(99,102,241,0.5)]" />
                 Creative Base

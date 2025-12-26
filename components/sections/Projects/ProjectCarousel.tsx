@@ -68,6 +68,29 @@ const ProjectCarousel: React.FC = () => {
     if (idx >= 0 && idx !== activeIndex) { lockAnim(); setActiveIndex(idx); }
   };
 
+  // Swiping Logic for Mobile
+  const touchStartX = useRef<number>(0);
+  const touchEndX = useRef<number>(0);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.targetTouches[0].clientX;
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    touchEndX.current = e.targetTouches[0].clientX;
+  };
+
+  const handleTouchEnd = () => {
+    const threshold = 50;
+    const swipeDistance = touchStartX.current - touchEndX.current;
+
+    if (swipeDistance > threshold) {
+      nextSlide(); // 왼쪽으로 스와이프 -> 다음 슬라이드
+    } else if (swipeDistance < -threshold) {
+      prevSlide(); // 오른쪽으로 스와이프 -> 이전 슬라이드
+    }
+  };
+
   // Autoplay
   const [isPaused, setIsPaused] = useState(false);
   const autoplayRef = useRef<number | null>(null);
@@ -132,6 +155,9 @@ const ProjectCarousel: React.FC = () => {
           className="relative w-full h-[600px] flex items-center justify-center"
           onMouseEnter={() => setIsPaused(true)}
           onMouseLeave={() => setIsPaused(false)}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
         >
           {!isMobile && (
             <button onClick={prevSlide} className="absolute left-[10%] top-1/2 -translate-y-1/2 z-50 p-4 rounded-full bg-black/50 border border-white/10 text-white backdrop-blur-md transition-all duration-300 hover:bg-white hover:text-black hover:scale-110">
