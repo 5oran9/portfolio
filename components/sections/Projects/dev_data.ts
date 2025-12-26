@@ -1,4 +1,5 @@
-// src/components/Projects/data.ts
+// src/components/Projects/dev_data.ts
+
 import { Project } from './types';
 
 export const projects: Project[] = [

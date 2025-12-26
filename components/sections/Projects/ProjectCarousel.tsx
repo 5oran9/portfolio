@@ -1,8 +1,10 @@
+// components/sections/Projects/ProjectCarousel.tsx
+
 'use client';
 
 import React, { useState } from 'react';
-import { ChevronLeft, ChevronRight, FileText } from 'lucide-react'; 
-import { projects } from './data';
+import { ChevronLeft, ChevronRight, FileText } from 'lucide-react';
+import { projects } from './dev_data';
 import { VisibleProject, Project } from './types';
 import ProjectDetail from './ProjectDetail';
 
@@ -11,10 +13,10 @@ const ProjectCarousel: React.FC = () => {
   const [isAnimating, setIsAnimating] = useState<boolean>(false);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
-  // 📐 레이아웃 설정 (사용자 요청대로 원본 유지)
+  // 📐 레이아웃 설정
   const CARD_WIDTH = 380;
   const CARD_HEIGHT = 580;
-  const GAP = 450; 
+  const GAP = 450;
 
   const nextSlide = () => {
     if (isAnimating) return;
@@ -30,28 +32,27 @@ const ProjectCarousel: React.FC = () => {
     setTimeout(() => setIsAnimating(false), 600);
   };
 
-  // ✨ [핵심 수정] 상세 페이지 이동 시 배경 캐러셀(activeIndex)도 같이 이동!
+  // 상세 페이지 이동 시 배경 캐러셀 위치 동기화
   const handlePrevDetail = () => {
     if (!selectedProject) return;
     const currentIndex = projects.findIndex(p => p.id === selectedProject.id);
     const prevIndex = (currentIndex - 1 + projects.length) % projects.length;
-    
-    setSelectedProject(projects[prevIndex]); // 모달 내용 변경
-    setActiveIndex(prevIndex);               // ✨ 배경 캐러셀 위치 동기화
+
+    setSelectedProject(projects[prevIndex]);
+    setActiveIndex(prevIndex);
   };
 
   const handleNextDetail = () => {
     if (!selectedProject) return;
     const currentIndex = projects.findIndex(p => p.id === selectedProject.id);
     const nextIndex = (currentIndex + 1) % projects.length;
-    
-    setSelectedProject(projects[nextIndex]); // 모달 내용 변경
-    setActiveIndex(nextIndex);               // ✨ 배경 캐러셀 위치 동기화
+
+    setSelectedProject(projects[nextIndex]);
+    setActiveIndex(nextIndex);
   };
 
   const getVisibleItems = (): VisibleProject[] => {
     const items: VisibleProject[] = [];
-    // -2 ~ 2 범위 (총 5개) 렌더링
     for (let i = -2; i <= 2; i++) {
       const index = (activeIndex + i + projects.length) % projects.length;
       items.push({ ...projects[index], position: i });
@@ -63,21 +64,21 @@ const ProjectCarousel: React.FC = () => {
 
   return (
     <div className="w-full min-h-screen bg-[#050505] text-white flex flex-col items-center justify-center py-20 overflow-hidden relative select-none">
-      
+
       {/* 상세 모달 */}
       {selectedProject && (
-        <ProjectDetail 
-          project={selectedProject} 
-          onClose={() => setSelectedProject(null)} 
+        <ProjectDetail
+          project={selectedProject}
+          onClose={() => setSelectedProject(null)}
           onPrev={handlePrevDetail}
           onNext={handleNextDetail}
         />
       )}
 
-      {/* 메인 컨텐츠 */}
+      {/* 메인 컨텐츠 (상세 모달 오픈 시 블러) */}
       <div className={`w-full flex flex-col items-center transition-all duration-500 mt-10 ${selectedProject ? 'blur-md scale-95 opacity-40 pointer-events-none' : ''}`}>
-        
-        {/* 타이틀 */}
+
+        {/* 타이틀 영역 */}
         <div className="text-center mb-10 z-20 px-4">
           <h1 className="text-5xl md:text-6xl font-bold mb-4 tracking-tight">
             <span className="text-indigo-500">Projects</span>
@@ -89,9 +90,9 @@ const ProjectCarousel: React.FC = () => {
 
         {/* 캐러셀 영역 */}
         <div className="relative w-full h-[600px] flex items-center justify-center">
-          
+
           {/* 왼쪽 버튼 */}
-          <button 
+          <button
             onClick={prevSlide}
             className="absolute left-[5%] md:left-[10%] z-50 p-4 rounded-full bg-black/50 border border-white/10 text-white hover:bg-white hover:text-black transition-all duration-300 backdrop-blur-md"
           >
@@ -102,16 +103,14 @@ const ProjectCarousel: React.FC = () => {
           <div className="absolute inset-0 flex items-center justify-center perspective-[1200px]">
             {visibleProjects.map((item) => {
               const absPosition = Math.abs(item.position);
-              
-              // ✨ [유지] 사용자 요청 간격 로직 (xOffset 보정 포함)
+
               let xOffset = 0;
               if (item.position === 0) xOffset = 0;
               else if (item.position === 1) xOffset = GAP;
               else if (item.position === -1) xOffset = -GAP;
-              else if (item.position === 2) xOffset = GAP + 430; 
+              else if (item.position === 2) xOffset = GAP + 430;
               else if (item.position === -2) xOffset = -(GAP + 430);
 
-              // ✨ [유지] 사용자 요청 스타일 로직
               let scale = 1;
               let cardStyle = '';
 
@@ -137,8 +136,7 @@ const ProjectCarousel: React.FC = () => {
                     }
                   }}
                   className={`
-                    absolute
-                    flex flex-col
+                    absolute flex flex-col
                     rounded-3xl overflow-hidden border border-gray-800 bg-[#111]
                     transition-all duration-700 cubic-bezier(0.25, 0.8, 0.25, 1)
                     ${cardStyle}
@@ -182,12 +180,12 @@ const ProjectCarousel: React.FC = () => {
                       </div>
                     </div>
 
-                    <button 
+                    <button
                       className={`w-full mt-4 py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 transition-all duration-300
                       ${absPosition === 0
-                        ? 'bg-white text-black hover:bg-gray-200 shadow-lg' 
-                        : 'border border-gray-700 text-gray-600 bg-transparent pointer-events-none'
-                      }`}
+                          ? 'bg-white text-black hover:bg-gray-200 shadow-lg'
+                          : 'border border-gray-700 text-gray-600 bg-transparent pointer-events-none'
+                        }`}
                     >
                       <FileText size={18} />
                       <span className="text-sm">View Detail</span>
@@ -199,7 +197,7 @@ const ProjectCarousel: React.FC = () => {
           </div>
 
           {/* 오른쪽 버튼 */}
-          <button 
+          <button
             onClick={nextSlide}
             className="absolute right-[5%] md:right-[10%] z-50 p-4 rounded-full bg-black/50 border border-white/10 text-white hover:bg-white hover:text-black transition-all duration-300 backdrop-blur-md"
           >

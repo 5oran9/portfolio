@@ -1,3 +1,7 @@
+// components/sections/Projects/ProjectDetail.tsx
+
+'use client';
+
 import React, { useState } from 'react';
 import { X, Calendar, Users, Github, CheckCircle2, Maximize2, ChevronLeft, ChevronRight } from 'lucide-react'; 
 import { Project } from './types';
@@ -19,7 +23,7 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, onClose, onPrev,
         {/* 배경 클릭 시 닫기 */}
         <div className="absolute inset-0" onClick={onClose}></div>
 
-        {/* ✨ [수정됨] 왼쪽 화살표: 화면 안쪽으로 배치 (left-6 ~ md:left-20) */}
+        {/* 왼쪽 화살표 */}
         <button 
           onClick={(e) => { e.stopPropagation(); onPrev(); }}
           className="absolute left-6 md:left-70 top-1/2 -translate-y-1/2 z-[200] p-3 bg-black/50 hover:bg-white hover:text-black rounded-full text-white transition-all backdrop-blur-md border border-white/10 hidden md:block"
@@ -27,7 +31,7 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, onClose, onPrev,
           <ChevronLeft size={40} />
         </button>
 
-        {/* ✨ [수정됨] 오른쪽 화살표: 화면 안쪽으로 배치 (right-6 ~ md:right-20) */}
+        {/* 오른쪽 화살표 */}
         <button 
           onClick={(e) => { e.stopPropagation(); onNext(); }}
           className="absolute right-6 md:right-70 top-1/2 -translate-y-1/2 z-[200] p-3 bg-black/50 hover:bg-white hover:text-black rounded-full text-white transition-all backdrop-blur-md border border-white/10 hidden md:block"

@@ -1,39 +1,52 @@
+// components/ui/MessageWidget.tsx
+
 'use client';
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTheme } from '@/context/ThemeContext';
 
 type FormData = {
   name: string;
   email: string;
   phone: string;
   message: string;
-  // 간단한 스팸 방지용 허니팟(사람은 보통 안 채움)
-  company: string;
+  company: string; // 허니팟 필드
 };
 
 export default function MessageWidget() {
+  const { mode } = useTheme(); // ✨ 테마 모드 가져오기
   const [isOpen, setIsOpen] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [toast, setToast] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   const [formData, setFormData] = useState<FormData>({
-    name: '',
-    email: '',
-    phone: '',
-    message: '',
-    company: '',
+    name: '', email: '', phone: '', message: '', company: '',
   });
 
-  const resetForm = () => {
-    setFormData({ name: '', email: '', phone: '', message: '', company: '' });
+  // ✨ 테마별 스타일 정의
+  const isDev = mode === 'dev';
+  const styles = {
+    modalBg: isDev ? 'bg-[#1a1a1a] border-white/10' : 'bg-white border-gray-200',
+    title: isDev ? 'text-white' : 'text-gray-900',
+    desc: isDev ? 'text-gray-400' : 'text-gray-500',
+    inputBg: isDev ? 'bg-black/30 border-white/10 text-white' : 'bg-gray-50 border-gray-200 text-gray-900',
+    inputFocus: isDev ? 'focus:border-indigo-500' : 'focus:border-orange-500',
+    submitBtn: isDev 
+      ? 'bg-white text-black hover:bg-gray-200' 
+      : 'bg-orange-600 text-white hover:bg-orange-700',
+    toggleBtn: isDev 
+      ? 'bg-indigo-600 border-indigo-400/40 hover:bg-indigo-500' 
+      : 'bg-orange-500 border-orange-400/40 hover:bg-orange-600',
+    toast: isDev ? 'bg-black/80 border-white/10' : 'bg-white border-gray-200 shadow-xl'
   };
+
+  const resetForm = () => setFormData({ name: '', email: '', phone: '', message: '', company: '' });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setToast(null);
 
-    // 허니팟에 값이 들어오면 봇 가능성 높아서 조용히 종료
     if (formData.company.trim().length > 0) {
       setIsOpen(false);
       resetForm();
@@ -42,7 +55,6 @@ export default function MessageWidget() {
 
     try {
       setIsSending(true);
-
       const res = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -54,16 +66,13 @@ export default function MessageWidget() {
         }),
       });
 
-      if (!res.ok) {
-        const data = await res.json().catch(() => null);
-        throw new Error(data?.error ?? '메일 전송에 실패했습니다.');
-      }
+      if (!res.ok) throw new Error('메일 전송에 실패했습니다.');
 
       setToast({ type: 'success', text: '전송 완료! 곧 회신드릴게요.' });
       resetForm();
       setIsOpen(false);
     } catch (err: any) {
-      setToast({ type: 'error', text: err?.message ?? '전송 실패. 잠시 후 다시 시도해주세요.' });
+      setToast({ type: 'error', text: err?.message ?? '전송 실패. 다시 시도해주세요.' });
     } finally {
       setIsSending(false);
     }
@@ -71,41 +80,35 @@ export default function MessageWidget() {
 
   return (
     <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-4">
-      {/* 간단 토스트 */}
+      {/* Toast Notification */}
       <AnimatePresence>
         {toast && (
           <motion.div
-            initial={{ opacity: 0, y: 10, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 10, scale: 0.98 }}
-            className={`px-4 py-3 rounded-xl border shadow-2xl backdrop-blur-md text-sm ${toast.type === 'success'
-                ? 'bg-black/50 border-white/10 text-white'
-                : 'bg-black/50 border-red-500/30 text-white'
-              }`}
+            initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }}
+            className={`px-4 py-3 rounded-xl border backdrop-blur-md text-sm transition-colors duration-1000 ${styles.toast} ${
+              toast.type === 'error' ? 'text-red-500' : isDev ? 'text-white' : 'text-gray-900'
+            }`}
           >
             {toast.text}
           </motion.div>
         )}
       </AnimatePresence>
 
+      {/* Message Form Modal */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            className="bg-[#1a1a1a] border border-white/10 p-6 rounded-2xl shadow-2xl w-[320px] md:w-[360px] relative overflow-hidden backdrop-blur-md"
+            className={`p-6 rounded-2xl shadow-2xl w-[320px] md:w-[360px] border backdrop-blur-md transition-colors duration-1000 ${styles.modalBg}`}
           >
             <div className="flex justify-between items-center mb-6">
               <div>
-                <h3 className="text-white font-bold text-lg">Send a Message</h3>
-                <p className="text-gray-400 text-xs mt-1">확인 후 빠르게 회신 드리겠습니다.</p>
+                <h3 className={`font-bold text-lg ${styles.title}`}>Send a Message</h3>
+                <p className={`text-xs mt-1 ${styles.desc}`}>확인 후 빠르게 회신 드리겠습니다.</p>
               </div>
-              <button
-                onClick={() => setIsOpen(false)}
-                className="text-gray-400 hover:text-white transition-colors"
-                aria-label="Close"
-              >
+              <button onClick={() => setIsOpen(false)} className="text-gray-400 hover:text-red-500 transition-colors">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
@@ -113,67 +116,43 @@ export default function MessageWidget() {
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
-              {/* 허니팟: 숨김 필드 */}
-              <input
-                type="text"
-                tabIndex={-1}
-                autoComplete="off"
-                value={formData.company}
-                onChange={(e) => setFormData({ ...formData, company: e.target.value })}
-                className="hidden"
-              />
+              <input type="text" tabIndex={-1} autoComplete="off" value={formData.company}
+                onChange={(e) => setFormData({ ...formData, company: e.target.value })} className="hidden" />
+
+              {[
+                { label: 'Name', type: 'text', key: 'name', ph: '성함 혹은 기업명' },
+                { label: 'Email', type: 'email', key: 'email', ph: 'reply 받을 이메일' },
+                { label: 'Phone', type: 'tel', key: 'phone', ph: '선택 (010-0000-0000)' },
+              ].map((field) => (
+                <div key={field.key}>
+                  <label className={`block text-xs font-medium mb-1.5 ml-1 ${styles.desc}`}>{field.label}</label>
+                  <input
+                    type={field.type}
+                    required={field.key !== 'phone'}
+                    placeholder={field.ph}
+                    value={(formData as any)[field.key]}
+                    onChange={(e) => setFormData({ ...formData, [field.key]: e.target.value })}
+                    className={`w-full px-4 py-3 border rounded-xl text-sm focus:outline-none transition-all placeholder:text-gray-500/50 ${styles.inputBg} ${styles.inputFocus}`}
+                  />
+                </div>
+              ))}
 
               <div>
-                <label className="block text-xs font-medium text-gray-400 mb-1.5 ml-1">Name</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="성함 혹은 기업명"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full px-4 py-3 bg-black/30 border border-white/10 rounded-xl text-white text-sm focus:outline-none focus:border-indigo-500 transition-colors placeholder:text-gray-600"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-medium text-gray-400 mb-1.5 ml-1">Email</label>
-                <input
-                  type="email"
-                  required
-                  placeholder="reply 받을 이메일"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="w-full px-4 py-3 bg-black/30 border border-white/10 rounded-xl text-white text-sm focus:outline-none focus:border-indigo-500 transition-colors placeholder:text-gray-600"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-medium text-gray-400 mb-1.5 ml-1">Phone</label>
-                <input
-                  type="tel"
-                  placeholder="선택 (010-0000-0000)"
-                  value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  className="w-full px-4 py-3 bg-black/30 border border-white/10 rounded-xl text-white text-sm focus:outline-none focus:border-indigo-500 transition-colors placeholder:text-gray-600"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-medium text-gray-400 mb-1.5 ml-1">Message</label>
+                <label className={`block text-xs font-medium mb-1.5 ml-1 ${styles.desc}`}>Message</label>
                 <textarea
                   required
                   rows={4}
                   placeholder="문의하실 내용을 남겨주세요."
                   value={formData.message}
                   onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                  className="w-full px-4 py-3 bg-black/30 border border-white/10 rounded-xl text-white text-sm focus:outline-none focus:border-indigo-500 transition-colors placeholder:text-gray-600 resize-none"
+                  className={`w-full px-4 py-3 border rounded-xl text-sm focus:outline-none transition-all placeholder:text-gray-500/50 resize-none ${styles.inputBg} ${styles.inputFocus}`}
                 />
               </div>
 
               <button
                 type="submit"
                 disabled={isSending}
-                className="w-full py-3 bg-white text-black font-bold rounded-xl hover:bg-gray-200 transition-all active:scale-95 text-sm mt-2 disabled:opacity-60 disabled:cursor-not-allowed"
+                className={`w-full py-3 font-bold rounded-xl transition-all active:scale-95 text-sm mt-2 disabled:opacity-60 ${styles.submitBtn}`}
               >
                 {isSending ? 'Sending...' : 'Send Message'}
               </button>
@@ -182,11 +161,10 @@ export default function MessageWidget() {
         )}
       </AnimatePresence>
 
+      {/* Floating Toggle Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative group flex items-center justify-center w-14 h-14 bg-indigo-600 border border-indigo-400/40 rounded-full text-white shadow-lg hover:bg-indigo-500 transition-all duration-300"
-
-
+        className={`relative flex items-center justify-center w-14 h-14 rounded-full text-white shadow-lg transition-all duration-500 border ${styles.toggleBtn}`}
         aria-label="Open message form"
       >
         {isOpen ? (

@@ -1,3 +1,5 @@
+// components/ui/SpotlightCard.tsx
+
 'use client';
 
 import { useRef, useState, MouseEvent } from 'react';

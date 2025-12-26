@@ -1,3 +1,5 @@
+// app/api/contact/route.ts
+
 import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
 
@@ -32,7 +34,7 @@ export async function POST(req: Request) {
       to,
       subject,
       text,
-      replyTo: email, // 답장 누르면 상대 이메일로 가게
+      replyTo: email,
     });
 
     return NextResponse.json({ ok: true });

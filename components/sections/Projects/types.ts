@@ -1,7 +1,8 @@
-// types.ts
+// components/sections/Projects/types.ts
+
 export interface Project {
   id: number;
-  abbr: string; // 카드 배경 텍스트 (예: SC, CA)
+  abbr: string; // 카드 배경 텍스트
   color: string; // 테마 컬러
   badge: string; // 우측 상단 뱃지
   title: string;
@@ -14,7 +15,7 @@ export interface Project {
   overview: string; // 상세 페이지용 긴 설명
   features: string[]; // 주요 기능
   stack: string[]; // 상세 기술 스택
-  performance?: string; // 성과 (Optional)
+  performance?: string; // 성과
   hasVideo: boolean;
   githubUrl?: string;
   githubUrl2?: string;
